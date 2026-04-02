@@ -1,0 +1,42 @@
+/* History — Filters, Drawer Details */
+.history-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-4); margin-bottom: var(--sp-6); flex-wrap: wrap;
+  animation: fade-in-up 0.5s var(--ease-out) both;
+}
+.history-toolbar-left { display: flex; align-items: center; gap: var(--sp-4); flex-wrap: wrap; }
+.history-toolbar-right { display: flex; align-items: center; gap: var(--sp-3); }
+.date-range-picker { display: flex; align-items: center; gap: var(--sp-2); }
+.date-range-picker input {
+  padding: var(--sp-2) var(--sp-3); background: var(--navy);
+  border: 1px solid var(--navy-border); border-radius: var(--radius-md);
+  color: var(--text-secondary); font-size: 0.78rem; width: 130px;
+}
+.date-range-picker input:focus { border-color: var(--purple); }
+.date-range-picker .separator { color: var(--text-dim); font-size: 0.8rem; }
+.history-table-wrapper { animation: fade-in-up 0.5s var(--ease-out) 0.1s both; }
+.drawer .run-detail-section { margin-bottom: var(--sp-6); }
+.drawer .run-detail-section h4 {
+  margin-bottom: var(--sp-3); color: var(--text-primary);
+  display: flex; align-items: center; gap: var(--sp-2);
+}
+.drawer .full-prompt {
+  padding: var(--sp-4); background: var(--navy);
+  border: 1px solid var(--navy-border); border-radius: var(--radius-md);
+  font-size: 0.85rem; line-height: 1.6; color: var(--text-secondary);
+}
+.drawer .loop-timeline { display: flex; flex-direction: column; gap: var(--sp-3); }
+.loop-timeline-item {
+  display: flex; align-items: flex-start; gap: var(--sp-3); padding: var(--sp-3);
+  border-radius: var(--radius-md); background: rgba(255,255,255,0.02);
+  border: 1px solid var(--glass-border);
+}
+.loop-timeline-item .loop-number {
+  width: 28px; height: 28px; border-radius: 50%; font-size: 0.72rem;
+  font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.loop-timeline-item .loop-number.pass { background: var(--green-subtle); color: var(--green-light); }
+.loop-timeline-item .loop-number.fail { background: var(--red-subtle); color: var(--red-light); }
+.loop-timeline-item .loop-info { flex: 1; }
+.loop-timeline-item .loop-agent { font-size: 0.78rem; font-weight: 600; color: var(--text-primary); }
+.loop-timeline-item .loop-message { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }

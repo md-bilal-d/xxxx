@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AgentForge — Live Multi-Agent Pipeline Dashboard">
+  <title>AgentForge — Live Pipeline</title>
+  <link rel="stylesheet" href="css/live_dashboard.css">
+</head>
+<body>
+
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="nav-btn active"><i class="ico">▶</i></div>
+      <div class="nav-btn"><i class="ico">☰</i></div>
+      <div class="nav-btn"><i class="ico">📁</i></div>
+      <div class="nav-btn"><i class="ico">⚙</i></div>
+    </aside>
+
+    <div class="main-container">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="logo-group">
+          <div class="logo-af">AF</div>
+          <div class="breadcrumb">
+            <span class="muted">AgentForge /</span> Live Pipeline
+          </div>
+        </div>
+        <div class="status-group">
+          <div class="pulse-dot"></div>
+          <div class="badge-teal-pill">3 agents online</div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="page-content">
+        
+        <!-- Active Run Bar -->
+        <section class="glass-card active-run-bar">
+          <div class="prompt-area">
+            <div class="label">ACTIVE RUN</div>
+            <div class="prompt-text">Build a FastAPI health check route at /health that returns status ok</div>
+          </div>
+          <div class="timer-area">
+            <div class="timer mono" id="stopwatch">00:12</div>
+            <div class="pill-purple mono">Loop 1/3</div>
+            <button class="btn-stop">
+              <div class="ico-stop"></div>
+              Stop Run
+            </button>
+          </div>
+        </section>
+
+        <!-- Agent Grid -->
+        <section class="agent-grid">
+          <!-- Architect -->
+          <article class="glass-card agent-card architect">
+            <div class="agent-card-header">
+              <div class="agent-info">
+                <div class="agent-ico">🏗</div>
+                <div class="agent-name-stack">
+                  <div class="name">Architect</div>
+                  <div class="model mono">llama3.1</div>
+                </div>
+              </div>
+              <div class="pill-status done">Done</div>
+            </div>
+            <div class="agent-content file-tree mono">
+              <div class="tree-folder">health_api/</div>
+              <div class="tree-item">├── main.py</div>
+              <div class="tree-item">├── test_main.py</div>
+              <div class="tree-item">└── requirements.txt</div>
+              <div class="divider"></div>
+              <div class="file-desc">
+                Defining API structure with FastAPI and automated testing suite using Pytest. Standard environment configuration.
+              </div>
+            </div>
+          </article>
+
+          <!-- Coder -->
+          <article class="glass-card agent-card coder">
+            <div class="agent-card-header">
+              <div class="agent-info">
+                <div class="agent-ico">⌨</div>
+                <div class="agent-name-stack">
+                  <div class="name">Coder</div>
+                  <div class="model mono">qwen2.5-coder</div>
+                </div>
+              </div>
+              <div class="pill-status done">Done</div>
+            </div>
+            <div class="agent-content">
+              <div class="mini-editor mono">
+                <div class="editor-header">
+                  <div class="mac-dot red"></div>
+                  <div class="mac-dot yellow"></div>
+                  <div class="mac-dot green"></div>
+                  <span class="editor-title">main.py</span>
+                </div>
+                <div class="editor-body">
+                  <div class="line">
+                    <span class="ln">1</span><span class="syntax-kw">from</span> fastapi <span class="syntax-kw">import</span> FastAPI
+                  </div>
+                  <div class="line">
+                    <span class="ln">2</span>
+                  </div>
+                  <div class="line">
+                    <span class="ln">3</span>app = <span class="syntax-fn">FastAPI</span>()
+                  </div>
+                  <div class="line">
+                    <span class="ln">4</span>
+                  </div>
+                  <div class="line">
+                    <span class="ln">5</span><span class="syntax-kw">@app</span>.<span class="syntax-fn">get</span>(<span class="syntax-str">"/health"</span>)
+                  </div>
+                  <div class="line">
+                    <span class="ln">6</span><span class="syntax-kw">async def</span> <span class="syntax-fn">health_check</span>():
+                  </div>
+                  <div class="line">
+                    <span class="ln">7</span>    <span class="syntax-kw">return</span> {<span class="syntax-str">"status"</span>: <span class="syntax-str">"ok"</span>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <!-- Reviewer -->
+          <article class="glass-card agent-card reviewer">
+            <div class="agent-card-header">
+              <div class="agent-info">
+                <div class="agent-ico">🔍</div>
+                <div class="agent-name-stack">
+                  <div class="name">Reviewer</div>
+                  <div class="model mono">llama3.1:8b</div>
+                </div>
+              </div>
+              <div class="pill-status lgtm">LGTM</div>
+            </div>
+            <div class="agent-content">
+              <div class="terminal mono">
+                <div class="line info">collecting items...</div>
+                <div class="line info">collected 2 items</div>
+                <div class="line">test_main.py <span class="term-teal">PASSED</span></div>
+                <div class="line">test_health.py <span class="term-teal">PASSED</span></div>
+                <div class="line term-yellow">== 2 passed in 0.34s ==</div>
+                <div class="line term-teal">✓ All tests passed — LGTM</div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- Progress Bar -->
+        <section class="glass-card progress-container">
+          <div class="progress-line-bg"></div>
+          <div class="progress-line-fill"></div>
+          
+          <div class="stage complete">
+            <div class="stage-dot"></div>
+            <div class="stage-label">Design</div>
+          </div>
+          <div class="stage complete">
+            <div class="stage-dot"></div>
+            <div class="stage-label">Code</div>
+          </div>
+          <div class="stage complete">
+            <div class="stage-dot"></div>
+            <div class="stage-label">Review</div>
+          </div>
+          <div class="stage active">
+            <div class="stage-dot"></div>
+            <div class="stage-label">Complete</div>
+          </div>
+        </section>
+
+        <!-- Output Panel -->
+        <section class="glass-card output-panel">
+          <div class="panel-header">
+            <div class="panel-title-group">
+              <span class="ico-folder">📁</span>
+              <h2 class="panel-title">Output Files</h2>
+              <span class="badge-teal-pill">3 files generated</span>
+            </div>
+            <div class="btn-group">
+              <button class="btn-outline">Download ZIP</button>
+              <button class="btn-purple">Open in Antigravity</button>
+            </div>
+          </div>
+
+          <nav class="tab-nav">
+            <div class="tab-btn active" data-tab="files">Files</div>
+            <div class="tab-btn" data-tab="logs">Run Logs</div>
+            <div class="tab-btn" data-tab="summary">Summary</div>
+          </nav>
+
+          <div class="tab-content" id="filesTab">
+            <!-- File 1 -->
+            <div class="file-row" onclick="toggleFile(this)">
+              <div class="file-info-group">
+                <span class="f-badge py">.py</span>
+                <span class="f-name">main.py</span>
+                <span class="f-size">245 B</span>
+                <span class="f-preview mono">from fastapi import FastAPI...</span>
+              </div>
+              <div class="f-arrow">›</div>
+            </div>
+            <div class="expanded-code hidden mono">
+              <pre><span class="syntax-kw">from</span> fastapi <span class="syntax-kw">import</span> FastAPI
+
+app = <span class="syntax-fn">FastAPI</span>()
+
+<span class="syntax-kw">@app</span>.<span class="syntax-fn">get</span>(<span class="syntax-str">"/health"</span>)
+<span class="syntax-kw">async def</span> <span class="syntax-fn">health_check</span>():
+    <span class="syntax-kw">return</span> {<span class="syntax-str">"status"</span>: <span class="syntax-str">"ok"</span>}</pre>
+            </div>
+
+            <!-- File 2 -->
+            <div class="file-row" onclick="toggleFile(this)">
+              <div class="file-info-group">
+                <span class="f-badge py">.py</span>
+                <span class="f-name">test_main.py</span>
+                <span class="f-size">512 B</span>
+                <span class="f-preview mono">def test_read_main()...</span>
+              </div>
+              <div class="f-arrow">›</div>
+            </div>
+
+            <!-- File 3 -->
+            <div class="file-row" onclick="toggleFile(this)">
+              <div class="file-info-group">
+                <span class="f-badge txt">.txt</span>
+                <span class="f-name">requirements.txt</span>
+                <span class="f-size">32 B</span>
+                <span class="f-preview mono">fastapi>=0.115.0...</span>
+              </div>
+              <div class="f-arrow">›</div>
+            </div>
+          </div>
+
+          <div class="tab-content hidden" id="logsTab">
+            <div class="log-container" id="logContainer">
+              <!-- Logs will be animated in by JS -->
+            </div>
+          </div>
+
+          <div class="tab-content hidden" id="summaryTab">
+            <div class="stat-grid">
+              <div class="stat-card">
+                <div class="label">Status</div>
+                <div class="val term-teal">Pass</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">Loop Count</div>
+                <div class="val text-purple">1</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">Files Created</div>
+                <div class="val">3</div>
+              </div>
+              <div class="stat-card">
+                <div class="label">Tests Ran</div>
+                <div class="val term-teal">2 / 2</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <style>
+    /* Inline styles for components not in global CSS */
+    .btn-group { display: flex; gap: 12px; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-purple {
+      background: var(--purple);
+      border: none;
+      color: white;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px var(--purple-glow);
+    }
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .stat-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-card .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+    .stat-card .val { font-size: 24px; font-weight: 700; }
+    .text-purple { color: #A855F7; }
+
+    .log-row {
+      display: flex;
+      gap: 16px;
+      padding: 8px 0;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: log-in 0.4s var(--ease) forwards;
+    }
+    .log-time { color: var(--text-muted); width: 60px; }
+    .log-tag { width: 45px; border-radius: 3px; font-weight: 800; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+    .tag-arch { background: var(--purple-glow); color: #D8B4FE; }
+    .tag-coder { background: var(--teal-glow); color: #5EEAD4; }
+    .tag-rev { background: rgba(245,158,11,0.2); color: #FCD34D; }
+
+    @keyframes log-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+
+  <script src="js/live_dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentForge — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep: #0a0a12;
+      --bg-sidebar: #0d0d14;
+      --bg-card: #111120;
+      --bg-input: #0d0d1a;
+      --border-card: #1e1e35;
+      --border-input: #2a2a45;
+      --purple: #7c3aed;
+      --indigo: #4f46e5;
+      --text-main: #ffffff;
+      --text-muted: #6b7280;
+      --success: #4ade80;
+      --error: #fb7185;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      background-color: var(--bg-deep);
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      opacity: 0;
+      animation: fadeIn 400ms ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* === Sidebar === */
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0; width: 60px;
+      background: var(--bg-sidebar);
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px 0; gap: 20px; z-index: 100;
+    }
+
+    .nav-btn {
+      width: 40px; height: 40px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-muted); text-decoration: none;
+      transition: all 0.2s ease; position: relative;
+    }
+
+    .nav-btn:hover { color: var(--text-main); background: rgba(124, 58, 237, 0.1); }
+    
+    .nav-btn.active {
+      color: var(--text-main);
+      background: rgba(124, 58, 237, 0.15);
+      border-left: 3px solid var(--purple);
+      border-radius: 0 8px 8px 0;
+    }
+
+    /* Tooltips */
+    .nav-btn::after {
+      content: attr(data-tooltip); position: absolute; left: 70px;
+      background: #1e293b; color: white; padding: 6px 12px;
+      border-radius: 6px; font-size: 11px; white-space: nowrap;
+      opacity: 0; pointer-events: none; transition: 0.2s;
+    }
+    .nav-btn:hover::after { opacity: 1; left: 65px; }
+
+    /* === Main Content === */
+    .main-content {
+      flex: 1; padding-left: 60px;
+      display: flex; justify-content: center;
+    }
+
+    .container {
+      width: 100%; max-width: 900px;
+      padding: 48px 24px; display: flex; flex-direction: column; gap: 24px;
+    }
+
+    /* === Prompt Section === */
+    .prompt-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 16px; padding: 28px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    .prompt-header h1 { font-size: 26px; font-weight: 700; margin-bottom: 4px; }
+    .prompt-header p { font-size: 13px; color: var(--text-muted); }
+
+    .textarea-wrap { position: relative; }
+    textarea {
+      width: 100%; min-height: 120px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      border-radius: 10px; color: white;
+      font-size: 14px; padding: 14px;
+      resize: vertical; outline: none;
+      transition: all 0.2s ease;
+    }
+    textarea:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    }
+
+    .kb-hint { font-size: 12px; color: #4b5563; margin-top: 8px; }
+
+    .btn-wrap { display: flex; justify-content: flex-end; margin-top: -30px; padding-right: 14px; z-index: 5; }
+    .btn-run {
+      background: linear-gradient(135deg, var(--purple), var(--indigo));
+      color: white; font-weight: 600; padding: 12px 24px;
+      border-radius: 10px; border: none; cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-run:hover:not(:disabled) { filter: brightness(1.15); transform: scale(1.02); }
+    .btn-run:active:not(:disabled) { transform: scale(0.97); }
+    .btn-run:disabled { background: var(--border-input); color: #555; cursor: not-allowed; }
+
+    /* === Stat Cards === */
+    .stat-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px; padding: 20px 24px;
+      opacity: 0; transform: translateY(20px);
+      animation: slideUp 500ms ease-out forwards;
+      transition: box-shadow 0.3s;
+    }
+    .stat-card:hover { box-shadow: 0 0 20px rgba(124, 58, 237, 0.15); }
+
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 100ms; }
+    .stat-card:nth-child(2) { animation-delay: 200ms; }
+    .stat-card:nth-child(3) { animation-delay: 300ms; }
+    .stat-card:nth-child(4) { animation-delay: 400ms; }
+
+    .stat-head { display: flex; justify-content: space-between; align-items: center; }
+    .stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .stat-num { font-size: 36px; font-weight: 800; margin-top: 8px; }
+    .stat-num.no-data { font-size: 14px; color: var(--text-muted); font-weight: 400; }
+
+    canvas { width: 100%; height: 40px; margin-top: 12px; }
+
+    /* === Table === */
+    .table-section { margin-top: 8px; }
+    .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .table-header h2 { font-size: 16px; font-weight: 700; }
+    .view-all { font-size: 13px; color: var(--purple); text-decoration: none; font-weight: 600; }
+
+    .recent-runs {
+      width: 100%; border-collapse: collapse;
+    }
+    .recent-runs th {
+      background: var(--bg-input); text-align: left;
+      padding: 10px 16px; font-size: 11px; text-transform: uppercase;
+      color: var(--text-muted); letter-spacing: 0.5px;
+    }
+    .recent-runs td {
+      padding: 14px 16px; font-size: 14px;
+      border-bottom: 1px solid #1a1a2e; transition: background 0.15s;
+    }
+    .recent-runs tr:hover td { background: #13132a; }
+
+    .mono { font-family: 'JetBrains Mono', monospace; color: var(--purple); font-weight: 600; }
+
+    .badge-status {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 600; border: 1px solid transparent;
+    }
+    .badge-status.passed { background: #052e1640; border-color: #16a34a; color: #4ade80; }
+    .badge-status.failed { background: #450a0a40; border-color: #dc2626; color: #fb7185; }
+
+    /* === Empty State === */
+    .empty-state {
+      text-align: center; padding: 60px 0; grid-column: span 6;
+    }
+    .empty-ico { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+    .empty-msg { font-weight: 700; margin-bottom: 4px; }
+    .empty-sub { font-size: 13px; color: var(--text-muted); }
+
+    /* === Responsive === */
+    @media (max-width: 768px) {
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .stat-grid { grid-template-columns: 1fr; }
+      .sidebar { width: 0; overflow: hidden; }
+      .main-content { padding-left: 0; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <a href="index.html" class="nav-btn active" data-tooltip="Dashboard"><i class="ico">⬡</i></a>
+    <a href="pipeline.html" class="nav-btn" data-tooltip="Pipeline"><i class="ico">▶</i></a>
+    <a href="history.html" class="nav-btn" data-tooltip="History"><i class="ico">☰</i></a>
+    <a href="config.html" class="nav-btn" data-tooltip="Settings"><i class="ico">⚙</i></a>
+    <a href="mobile.html" class="nav-btn" data-tooltip="Mobile Monitor" style="margin-top:auto;"><i class="ico">📱</i></a>
+  </aside>
+
+  <main class="main-content">
+    <div class="container">
+      
+      <!-- Prompt Section -->
+      <section class="prompt-card">
+        <div class="prompt-header">
+          <h1>What do you want to build? 🚀</h1>
+          <p>Describe your project and the AI coding crew will handle the rest.</p>
+        </div>
+        
+        <div class="textarea-wrap">
+          <textarea id="agentPrompt" placeholder="Describe the task for your Agent Crew... (e.g. 'Build a React login component with Tailwind')"></textarea>
+          <p class="kb-hint">Enter to submit &nbsp;·&nbsp; Shift+Enter for new line</p>
+        </div>
+        
+        <div class="btn-wrap">
+          <button id="runBtn" class="btn-run" disabled>
+            <span>▶</span> Run Agent Crew
+          </button>
+        </div>
+      </section>
+
+      <!-- Stats Grid -->
+      <section class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-label">Total Runs</span>
+            <span>▶</span>
+          </div>
+          <div class="stat-num" id="statTotal">—</div>
+          <canvas id="chartRuns"></canvas>
+        </div>
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-label">Pass Rate</span>
+            <span>✓</span>
+          </div>
+          <div class="stat-num" id="statPass">—</div>
+          <canvas id="chartPass"></canvas>
+        </div>
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-label">Avg Loops</span>
+            <span>↻</span>
+          </div>
+          <div class="stat-num" id="statLoops">—</div>
+          <canvas id="chartLoops"></canvas>
+        </div>
+        <div class="stat-card">
+          <div class="stat-head">
+            <span class="stat-label">Active Agents</span>
+            <span>⬡</span>
+          </div>
+          <div class="stat-num" id="statAgents">3</div>
+          <canvas id="chartAgents"></canvas>
+        </div>
+      </section>
+
+      <!-- Recent Table -->
+      <section class="table-section">
+        <div class="table-header">
+          <h2>Recent Pipeline Runs</h2>
+          <a href="history.html" class="view-all">View All History →</a>
+        </div>
+        
+        <div id="runsContainer">
+          <table class="recent-runs">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Prompt</th>
+                <th>Status</th>
+                <th>Loops</th>
+                <th>Duration</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="recentRunsTable">
+              <!-- Dynamic -->
+            </tbody>
+          </table>
+          
+          <div id="emptyState" class="empty-state hidden">
+            <div class="empty-ico">🚀</div>
+            <div class="empty-msg">No runs yet</div>
+            <div class="empty-sub">Submit your first prompt above</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script>
+    // Functional Wiring
+    const promptArea = document.getElementById('agentPrompt');
+    const runBtn = document.getElementById('runBtn');
+
+    promptArea.addEventListener('input', () => {
+      runBtn.disabled = !promptArea.value.trim();
+    });
+
+    promptArea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (!runBtn.disabled) runBtn.click();
+      }
+    });
+
+    runBtn.onclick = () => {
+      const p = promptArea.value.trim();
+      if (!p) return;
+      localStorage.setItem('agentforge_prompt', p);
+      location.href = 'pipeline.html';
+    };
+
+    // Observer for Empty State (Fixing Dashboard.js limitation)
+    const observer = new MutationObserver(() => {
+      const tbody = document.getElementById('recentRunsTable');
+      const empty = document.getElementById('emptyState');
+      if (tbody && empty) {
+        if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.innerHTML.includes('No runs yet'))) {
+          empty.classList.remove('hidden');
+          tbody.parentElement.classList.add('hidden');
+        } else {
+          empty.classList.add('hidden');
+          tbody.parentElement.classList.remove('hidden');
+        }
+      }
+    });
+    observer.observe(document.getElementById('recentRunsTable'), { childList: true });
+  </script>
+  <!-- API Key Modal -->
+  <style>
+    .api-modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .api-modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .api-modal {
+      background: var(--bg-card, #111120); border: 1px solid var(--border-card, #1e1e35);
+      border-radius: 16px; padding: 32px; width: 100%; max-width: 400px;
+      text-align: center; transform: translateY(20px); transition: transform 0.3s;
+    }
+    .api-modal-overlay.active .api-modal { transform: translateY(0); }
+    .api-modal h2 { margin-bottom: 8px; font-size: 20px; color: white; display:flex; align-items:center; justify-content:center; gap:10px; }
+    .api-modal input {
+      width: 100%; background: #0d0d1a; border: 1px solid #2a2a45;
+      color: white; padding: 12px; border-radius: 8px; margin: 16px 0;
+      outline: none; text-align: center; font-family: monospace;
+    }
+    .api-modal input:focus { border-color: #7c3aed; }
+    .api-modal button {
+      width: 100%; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white;
+      border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
+    }
+    .api-modal a { display: block; margin-top: 16px; color: #6b7280; font-size: 12px; text-decoration: none; }
+    .api-modal a:hover { color: #fff; }
+    .api-key-btn { position: fixed; top: 20px; right: 20px; background: #111120; border: 1px solid #1e1e35; color: white; padding: 10px; border-radius: 8px; cursor: pointer; z-index: 1000; display:flex; align-items:center; justify-content:center; transition: .2s; }
+    .api-key-btn:hover { background: #1e1e35; }
+  </style>
+
+  <button class="api-key-btn" onclick="openApiModal()" aria-label="API Key">🔑 API Key</button>
+
+  <div id="apiKeyModal" class="api-modal-overlay">
+    <div class="api-modal">
+      <h2><span style="color:#7c3aed;">⬡</span> AgentForge Auth</h2>
+      <p style="color:#6b7280; font-size:14px;">Enter your Groq API key to continue</p>
+      <input type="password" id="apiKeyValue" placeholder="gsk_...">
+      <button onclick="saveApiKey()">Save & Continue</button>
+      <a href="https://console.groq.com/" target="_blank">Get your API key at console.groq.com</a>
+    </div>
+  </div>
+
+  <script>
+    function openApiModal() {
+      const stored = localStorage.getItem("groq_key");
+      if(stored) document.getElementById("apiKeyValue").value = stored;
+      document.getElementById("apiKeyModal").classList.add("active");
+    }
+    function closeApiModal() {
+      document.getElementById("apiKeyModal").classList.remove("active");
+    }
+    function saveApiKey() {
+      const val = document.getElementById("apiKeyValue").value.trim();
+      if(val) {
+        localStorage.setItem("groq_key", val);
+        closeApiModal();
+      }
+    }
+    window.addEventListener("DOMContentLoaded", () => {
+      if(!localStorage.getItem("groq_key")) {
+        openApiModal();
+      }
+    });
+  </script>
+</body>
+</html>

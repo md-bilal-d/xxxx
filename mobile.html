@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="AgentForge — Mobile Monitoring Interface">
+  <title>AgentForge — Mobile</title>
+  <link rel="stylesheet" href="css/premium_core.css">
+  <style>
+    /* Mobile specific overrides */
+    body { padding-bottom: 80px; } /* Space for FAB */
+    .app-shell { display: block; }
+    .main-container { padding-left: 0; }
+    
+    .mobile-header {
+      height: 52px; background: rgba(8, 12, 24, 0.8); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-glass); display: flex; align-items: center;
+      justify-content: space-between; padding: 0 16px; position: sticky; top: 0; z-index: 100;
+    }
+
+    .mobile-content { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+
+    .hero-mobile { position: relative; padding: 20px; }
+    .hero-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .hero-prompt { font-size: 15px; font-weight: 700; color: var(--text-primary); line-height: 1.4; margin-bottom: 20px; }
+    
+    .hero-stats { display: flex; align-items: center; justify-content: space-between; }
+    .stat-box .label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .stat-box .val { font-size: 18px; font-weight: 700; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; }
+
+    /* Progress Ring */
+    .progress-ring-wrap { position: relative; width: 60px; height: 60px; }
+    .progress-ring { transform: rotate(-90deg); transform-origin: 50% 50%; }
+    .ring-bg { fill: none; stroke: var(--border-glass); stroke-width: 4; }
+    .ring-fill {
+      fill: none; stroke: var(--teal); stroke-width: 4; stroke-linecap: round;
+      stroke-dasharray: 175.93; stroke-dashoffset: 175.93; transition: stroke-dashoffset 0.5s;
+    }
+    .ring-text {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: var(--teal-light); font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Timeline */
+    .timeline-mobile { display: flex; flex-direction: column; gap: 12px; }
+    .step-row {
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass);
+      border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 16px;
+    }
+    .step-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--border-glass); }
+    .step-row.active .step-dot { background: var(--purple); border-color: var(--purple); box-shadow: 0 0 10px var(--purple-glow); }
+    .step-row.done .step-dot { background: var(--teal); border-color: var(--teal); }
+    .step-label { font-size: 13px; font-weight: 700; color: var(--text-secondary); }
+    .step-row.active .step-label { color: var(--text-primary); }
+
+    /* Mini Log */
+    .log-terminal {
+      background: #0A0E18; border-radius: 12px; padding: 16px; font-size: 11px;
+      line-height: 1.6; font-family: 'JetBrains Mono', monospace; max-height: 200px; overflow-y: auto;
+    }
+    .log-line { color: var(--text-muted); margin-bottom: 4px; }
+    .log-line.info { color: #5EEAD4; }
+
+    /* Stop FAB */
+    .stop-fab {
+      position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px;
+      background: var(--rose); color: white; border-radius: 50%; border: none;
+      box-shadow: 0 8px 24px rgba(244,63,94,0.4); display: flex; align-items: center;
+      justify-content: center; font-size: 20px; font-weight: 800; cursor: pointer; z-index: 1000;
+    }
+
+    /* Action Sheet (Fix 22) */
+    .action-sheet {
+      position: fixed; bottom: 0; left: 0; right: 0; background: #0F172A;
+      border-top: 1px solid var(--border-glass); border-radius: 24px 24px 0 0;
+      padding: 24px; transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 2000; box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+    }
+    .action-sheet.active { transform: translateY(0); }
+    .sheet-handle { width: 40px; height: 4px; background: var(--border-glass); border-radius: 2px; margin: 0 auto 20px; }
+    .sheet-title { font-size: 18px; font-weight: 800; text-align: center; margin-bottom: 24px; color: var(--teal-light); }
+    .sheet-actions { display: flex; flex-direction: column; gap: 12px; }
+  </style>
+</head>
+<body>
+
+  <header class="mobile-header">
+    <div class="logo-group">
+      <div class="logo-af">AF</div>
+      <div class="breadcrumb">AgentForge</div>
+    </div>
+    <div class="status-group">
+      <div class="pulse-dot"></div>
+      <div class="user-avatar" style="width:28px; height:28px; border-radius:50%; background:var(--bg-aside); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; border:1px solid var(--border-glass);">SP</div>
+    </div>
+  </header>
+
+  <main class="mobile-content">
+    
+    <!-- Hero Monitor -->
+    <section class="glass-card hero-mobile">
+      <div class="hero-top">
+        <span class="badge-teal-pill" style="padding:2px 8px; font-size:9px;">Live Run</span>
+        <span class="mono" style="font-size:10px; color:var(--text-muted);">ID: #013</span>
+      </div>
+      <div class="hero-prompt">
+        Build a FastAPI health check route at /health
+      </div>
+      <div class="hero-stats">
+        <div class="stat-box">
+          <div class="label">Elapsed</div>
+          <div class="val" id="mobileElapsed">00:12</div>
+        </div>
+        <div class="progress-ring-wrap">
+          <svg class="progress-ring" width="60" height="60">
+            <circle class="ring-bg" cx="30" cy="30" r="28" />
+            <circle class="ring-fill" id="progressRing" cx="30" cy="30" r="28" style="stroke-dashoffset: 130;" />
+          </svg>
+          <div class="ring-text" id="progressText">25%</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Timeline steps -->
+    <section class="timeline-mobile">
+      <div class="section-header">
+        <h2 style="font-size:14px;">🕵 Pipeline Status</h2>
+      </div>
+      <div class="step-row done">
+        <div class="step-dot"></div>
+        <span class="step-label">Architect Phase</span>
+      </div>
+      <div class="step-row active">
+        <div class="step-dot"></div>
+        <span class="step-label">Implementation (Coder)</span>
+      </div>
+      <div class="step-row">
+        <div class="step-dot"></div>
+        <span class="step-label">Quality Review</span>
+      </div>
+    </section>
+
+    <!-- Log Peek -->
+    <section class="log-peek">
+      <div class="section-header">
+        <h2 style="font-size:14px;">📜 Activity Logs</h2>
+      </div>
+      <div class="log-terminal">
+        <div class="log-line">[13:04:01] ARCH — Design approved by user</div>
+        <div class="log-line info">[13:04:12] CODER — Writing main.py...</div>
+        <div class="log-line">[13:04:15] CODER — 2/3 files written</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Stop FAB -->
+  <button class="stop-fab" id="stopFab">■</button>
+
+  <!-- Action Sheet (Fix 22) -->
+  <div class="action-sheet" id="completionSheet">
+     <div class="sheet-handle"></div>
+     <div class="sheet-title">🚀 Deployment Ready</div>
+     <div class="sheet-actions">
+        <button class="btn-primary" id="mobilePreviewBtn" style="width:100%; padding:16px;">View Live Preview</button>
+        <button class="btn-ghost" id="mobileDownloadBtn" style="width:100%; padding:16px;">Download Project ZIP</button>
+        <button class="btn-ghost" onclick="location.href='index.html'" style="width:100%; padding:16px; border:none; opacity:0.6;">Back to Dashboard</button>
+     </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="js/mobile.js"></script>
+</body>
+</html>

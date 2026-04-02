@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AgentForge — System Configuration and Model Settings">
+  <title>AgentForge — Settings</title>
+  <link rel="stylesheet" href="css/premium_core.css">
+  <style>
+    /* Config specific styles */
+    .config-layout { display: flex; gap: 32px; min-height: calc(100vh - var(--topbar-h) - 48px); }
+    
+    .settings-aside { width: 200px; display: flex; flex-direction: column; gap: 8px; }
+    .settings-nav-item {
+      padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
+      color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+    }
+    .settings-nav-item:hover { background: rgba(255,255,255,0.03); color: var(--text-primary); }
+    .settings-nav-item.active { background: var(--purple-glow); color: white; }
+
+    .settings-panel { flex: 1; display: flex; flex-direction: column; gap: 24px; }
+    
+    .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .form-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    
+    .form-input, .form-select {
+      background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass);
+      border-radius: 8px; padding: 10px 14px; color: white; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--teal); outline: none; }
+    
+    .agent-config-card { margin-bottom: 16px; }
+    .agent-card-header { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-glass); margin-bottom: 16px; }
+    .agent-ico { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .agent-role { font-weight: 700; font-size: 14px; }
+    .agent-desc { font-size: 11px; color: var(--text-muted); }
+
+    .latency-indicator { display: flex; align-items: center; gap: 8px; font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+    .latency-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .latency-dot.fast { background: #22C55E; box-shadow: 0 0 6px #22C55E; }
+    .latency-dot.medium { background: var(--amber); }
+    .latency-dot.slow { background: var(--rose); }
+
+    /* Range Sliders */
+    .range-group { display: flex; align-items: center; gap: 16px; }
+    .range-input { flex: 1; accent-color: var(--teal); }
+    .range-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--teal-light); min-width: 40px; }
+
+    /* Toggle Switch */
+    .toggle-group { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid var(--border-glass); }
+    .toggle { position: relative; display: inline-block; width: 40px; height: 20px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background-color: var(--bg-aside); transition: .4s; border-radius: 20px; border: 1px solid var(--border-glass); }
+    .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: var(--text-muted); transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--teal-glow); border-color: var(--teal); }
+    input:checked + .slider:before { transform: translateX(20px); background-color: var(--teal-light); }
+
+    .danger-zone { border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.02); }
+    .danger-title { color: var(--rose); font-weight: 800; font-size: 12px; text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="index.html" class="nav-btn" data-tooltip="Dashboard"><i class="ico">🏠</i></a>
+      <a href="pipeline.html" class="nav-btn" data-tooltip="Pipeline"><i class="ico">▶</i></a>
+      <a href="history.html" class="nav-btn" data-tooltip="History"><i class="ico">☰</i></a>
+      <a href="config.html" class="nav-btn active" data-tooltip="Settings"><i class="ico">⚙</i></a>
+      <a href="mobile.html" class="nav-btn" data-tooltip="Mobile Monitor" style="margin-top:auto; margin-bottom: 24px;"><i class="ico">📱</i></a>
+    </aside>
+
+    <div class="main-container">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="logo-group">
+          <div class="logo-af">AF</div>
+          <div class="breadcrumb">
+            <span class="muted">AgentForge /</span> Settings
+          </div>
+        </div>
+        <div class="status-group">
+          <div class="pulse-dot"></div>
+          <div class="badge-teal-pill">3 agents online</div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="page-content">
+        
+        <div class="config-layout">
+          <!-- Settings Nav -->
+          <aside class="settings-aside">
+            <div class="settings-nav-item active" data-section="modelsSection">🤖 Models</div>
+            <div class="settings-nav-item" data-section="loopSection">🔄 Loop Config</div>
+            <div class="settings-nav-item" data-section="generalSection">📁 General</div>
+            <div class="settings-nav-item" data-section="dangerSection">⚠ Danger Zone</div>
+          </aside>
+
+          <!-- Settings Panel -->
+          <section class="settings-panel">
+            
+            <!-- Models Section -->
+            <div class="settings-section" id="modelsSection">
+              <div class="section-header" style="margin-bottom:20px">
+                <h2>Robot Models & Endpoints</h2>
+              </div>
+              
+              <!-- Architect Card -->
+              <div class="glass-card agent-config-card">
+                <div class="agent-card-header">
+                  <div class="agent-ico" style="background:var(--purple-glow); color:#D8B4FE">🏗</div>
+                  <div class="agent-info">
+                    <div class="agent-role">Architect Agent</div>
+                    <div class="agent-desc">System design and planning</div>
+                  </div>
+                </div>
+                <div class="stat-grid" style="grid-template-columns: 1fr 1fr; gap: 24px;">
+                  <div class="form-group">
+                    <label class="form-label">Model Identifier</label>
+                    <select class="form-select">
+                      <option selected>llama3.1</option>
+                      <option>llama3.1:70b</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Endpoint URL</label>
+                    <input type="text" class="form-input" value="http://localhost:11434">
+                  </div>
+                </div>
+                <div class="hero-actions" style="margin-top:16px; border-top: 1px solid var(--border-glass); padding-top: 16px; display:flex; justify-content: space-between; align-items:center;">
+                  <button class="btn-ghost test-connection-btn" style="font-size:11px;">⚡ Test Connection</button>
+                  <div class="latency-indicator" style="display:none">
+                    <div class="latency-dot fast"></div>
+                    <span class="latency-value">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Coder Card -->
+              <div class="glass-card agent-config-card">
+                <div class="agent-card-header">
+                  <div class="agent-ico" style="background:var(--teal-glow); color:#5EEAD4">⌨</div>
+                  <div class="agent-info">
+                    <div class="agent-role">Coder Agent</div>
+                    <div class="agent-desc">Python implementation</div>
+                  </div>
+                </div>
+                <div class="stat-grid" style="grid-template-columns: 1fr 1fr; gap: 24px;">
+                  <div class="form-group">
+                    <label class="form-label">Model Identifier</label>
+                    <select class="form-select">
+                      <option selected>qwen2.5-coder</option>
+                      <option>codellama</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Endpoint URL</label>
+                    <input type="text" class="form-input" value="http://localhost:11434">
+                  </div>
+                </div>
+                <div class="hero-actions" style="margin-top:16px; border-top: 1px solid var(--border-glass); padding-top: 16px; display:flex; justify-content: space-between; align-items:center;">
+                  <button class="btn-ghost test-connection-btn" style="font-size:11px;">⚡ Test Connection</button>
+                  <div class="latency-indicator" style="display:none">
+                    <div class="latency-dot fast"></div>
+                    <span class="latency-value">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Loop Config Section -->
+            <div class="settings-section hidden" id="loopSection">
+              <div class="section-header" style="margin-bottom:20px">
+                <h2>Iterative Pipeline Logic</h2>
+              </div>
+              <div class="glass-card">
+                <div class="form-group">
+                  <label class="form-label">Max Retries</label>
+                  <div class="range-group">
+                    <input type="range" class="range-input" id="maxRetries" min="1" max="10" value="3">
+                    <span class="range-val" id="retriesValue">3</span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Human-in-the-Loop Approval</label>
+                  <div class="toggle-group">
+                    <div class="agent-desc" style="font-size:12px; color:var(--text-secondary)">Pause for design review</div>
+                    <label class="toggle">
+                      <input type="checkbox" id="hitlToggle" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Execution Timeout</label>
+                  <div class="range-group">
+                    <input type="range" class="range-input" id="agentTimeout" min="30" max="600" value="120">
+                    <span class="range-val" id="timeoutValue">120s</span>
+                  </div>
+                </div>
+                <button class="btn-primary save-settings-btn" onclick="saveSettings()" style="width:100%; margin-top:12px;">💾 Save Configuration</button>
+              </div>
+            </div>
+
+            <!-- General Section -->
+            <div class="settings-section hidden" id="generalSection">
+              <div class="section-header" style="margin-bottom:20px">
+                <h2>Workspace & Logging</h2>
+              </div>
+              <div class="glass-card">
+                <div class="form-group">
+                  <label class="form-label">Workspace Root</label>
+                  <input type="text" class="form-input" value="./output">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Logging Verbosity</label>
+                  <select class="form-select">
+                    <option>DEBUG</option>
+                    <option selected>INFO</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="settings-section hidden" id="dangerSection">
+              <div class="section-header" style="margin-bottom:20px">
+                <h2 style="color:var(--rose)">⚠ Danger Zone</h2>
+              </div>
+              <div class="glass-card danger-zone">
+                <div class="action-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                  <div>
+                    <div class="agent-role">Delete All History</div>
+                    <div class="agent-desc">Erase all logged runs from disk</div>
+                  </div>
+                  <button class="btn-primary" style="background:var(--rose); box-shadow: 0 4px 15px rgba(244,63,94,0.3);" onclick="alert('Demo: Cleared')">Purge History</button>
+                </div>
+                <div class="action-row" style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+          <div class="glass-card" style="padding:0; overflow:hidden;">
+        <div class="tab-bar">
+          <div class="tab-item active" onclick="switchConfigTab('models')">Agent Models</div>
+          <div class="tab-item" onclick="switchConfigTab('loops')">Loop Logic</div>
+          <div class="tab-item" onclick="switchConfigTab('general')">General</div>
+        </div>
+
+        <!-- Models Tab -->
+        <div id="modelsPane" class="tab-pane">
+           <div class="config-row">
+              <div class="config-info">
+                 <div class="config-title">Architect Agent</div>
+                 <div class="muted">Responsible for file structure and tech stack planning.</div>
+              </div>
+              <select id="modelArch" class="btn-ghost" style="width:200px;"></select>
+           </div>
+           <div class="config-row">
+              <div class="config-info">
+                 <div class="config-title">Coder Agent</div>
+                 <div class="muted">Responsible for writing the actual code files.</div>
+              </div>
+              <select id="modelCode" class="btn-ghost" style="width:200px;"></select>
+           </div>
+           <div class="config-row" style="border-bottom:none;">
+              <div class="config-info">
+                 <div class="config-title">Reviewer Agent</div>
+                 <div class="muted">Responsible for testing and validation.</div>
+              </div>
+              <select id="modelRev" class="btn-ghost" style="width:200px;"></select>
+           </div>
+        </div>
+
+        <!-- Loop Logic Tab -->
+        <div id="loopsPane" class="tab-pane hidden">
+           <div class="config-row">
+              <div class="config-info">
+                 <div class="config-title">Max Loops</div>
+                 <div class="muted">How many times the crew can try to fix code.</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:16px;">
+                 <input type="range" id="maxLoopsRange" min="1" max="5" value="3" style="width:120px;">
+                 <span id="maxLoopsVal" class="mono">3</span>
+              </div>
+           </div>
+           <div class="config-row" style="border-bottom:none;">
+              <div class="config-info">
+                 <div class="config-title">Auto-Retry on Failure</div>
+                 <div class="muted">Automatically restart loop if a critical error occurs.</div>
+              </div>
+              <label class="switch">
+                 <input type="checkbox" id="autoRetry">
+                 <span class="slider round"></span>
+              </label>
+           </div>
+        </div>
+
+        <!-- General Tab -->
+        <div id="generalPane" class="tab-pane hidden">
+           <div class="config-row">
+              <div class="config-info">
+                 <div class="config-title">Dark Mode (Premium High-Contrast)</div>
+                 <div class="muted">Current theme is forced dark for premium aesthetics.</div>
+              </div>
+              <span class="badge-status passed">ENABLED</span>
+           </div>
+           <div class="config-row" style="border-bottom:none;">
+              <div class="config-info">
+                 <div class="config-title">Notifications</div>
+                 <div class="muted">Show toast notifications for background tasks.</div>
+              </div>
+              <label class="switch">
+                 <input type="checkbox" id="showNotifications" checked>
+                 <span class="slider round"></span>
+              </label>
+           </div>
+
+           <div class="danger-zone" style="margin-top:40px; padding-top:40px; border-top:1px solid rgba(244,63,94,0.2);">
+              <h3 style="color:var(--red-light); margin-bottom:12px;">Danger Zone</h3>
+              <p class="muted" style="margin-bottom:20px;">These actions cannot be undone. Be careful.</p>
+              <div style="display:flex; gap:12px;">
+                 <button class="btn-ghost" onclick="clearHistory()" style="color:var(--red-light); border-color:rgba(244,63,94,0.3);">Purge All History</button>
+                 <button class="btn-ghost" onclick="resetConfig()" style="color:var(--red-light); border-color:rgba(244,63,94,0.3);">Reset Factory Settings</button>
+              </div>
+           </div>
+        </div>
+
+        <div style="padding:24px; background:rgba(0,0,0,0.2); display:flex; justify-content:flex-end; gap:12px;">
+           <button class="btn-ghost" onclick="location.reload()">Discard</button>
+           <button class="btn-primary" onclick="saveSettings()">Save Configuration</button>
+        </div>
+      </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script src="js/config.js"></script>
+  <!-- API Key Modal -->
+  <style>
+    .api-modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .api-modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .api-modal {
+      background: var(--bg-card, #111120); border: 1px solid var(--border-card, #1e1e35);
+      border-radius: 16px; padding: 32px; width: 100%; max-width: 400px;
+      text-align: center; transform: translateY(20px); transition: transform 0.3s;
+    }
+    .api-modal-overlay.active .api-modal { transform: translateY(0); }
+    .api-modal h2 { margin-bottom: 8px; font-size: 20px; color: white; display:flex; align-items:center; justify-content:center; gap:10px; }
+    .api-modal input {
+      width: 100%; background: #0d0d1a; border: 1px solid #2a2a45;
+      color: white; padding: 12px; border-radius: 8px; margin: 16px 0;
+      outline: none; text-align: center; font-family: monospace;
+    }
+    .api-modal input:focus { border-color: #7c3aed; }
+    .api-modal button {
+      width: 100%; background: linear-gradient(135deg, #7c3aed, #4f46e5); color: white;
+      border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;
+    }
+    .api-modal a { display: block; margin-top: 16px; color: #6b7280; font-size: 12px; text-decoration: none; }
+    .api-modal a:hover { color: #fff; }
+    .api-key-btn { position: fixed; top: 20px; right: 20px; background: #111120; border: 1px solid #1e1e35; color: white; padding: 10px; border-radius: 8px; cursor: pointer; z-index: 1000; display:flex; align-items:center; justify-content:center; transition: .2s; }
+    .api-key-btn:hover { background: #1e1e35; }
+  </style>
+
+  <button class="api-key-btn" onclick="openApiModal()" aria-label="API Key">🔑 API Key</button>
+
+  <div id="apiKeyModal" class="api-modal-overlay">
+    <div class="api-modal">
+      <h2><span style="color:#7c3aed;">⬡</span> AgentForge Auth</h2>
+      <p style="color:#6b7280; font-size:14px;">Enter your Groq API key to continue</p>
+      <input type="password" id="apiKeyValue" placeholder="gsk_...">
+      <button onclick="saveApiKey()">Save & Continue</button>
+      <a href="https://console.groq.com/" target="_blank">Get your API key at console.groq.com</a>
+    </div>
+  </div>
+
+  <script>
+    function openApiModal() {
+      const stored = localStorage.getItem("groq_key");
+      if(stored) document.getElementById("apiKeyValue").value = stored;
+      document.getElementById("apiKeyModal").classList.add("active");
+    }
+    function closeApiModal() {
+      document.getElementById("apiKeyModal").classList.remove("active");
+    }
+    function saveApiKey() {
+      const val = document.getElementById("apiKeyValue").value.trim();
+      if(val) {
+        localStorage.setItem("groq_key", val);
+        closeApiModal();
+      }
+    }
+    window.addEventListener("DOMContentLoaded", () => {
+      if(!localStorage.getItem("groq_key")) {
+        openApiModal();
+      }
+    });
+  </script>
+</body>
+</html>

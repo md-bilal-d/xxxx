@@ -1,0 +1,58 @@
+/* Config — Settings Sidebar, Agent Cards, Sliders */
+.config-layout { display: flex; gap: var(--sp-6); animation: fade-in-up 0.5s var(--ease-out) both; }
+.settings-sidebar {
+  width: 220px; flex-shrink: 0; background: var(--glass-bg);
+  backdrop-filter: blur(16px); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg); padding: var(--sp-4); align-self: flex-start;
+  position: sticky; top: calc(var(--navbar-height) + var(--sp-8));
+}
+.settings-nav { display: flex; flex-direction: column; gap: var(--sp-1); }
+.settings-nav-item {
+  padding: var(--sp-3) var(--sp-4); border-radius: var(--radius-md);
+  font-size: 0.85rem; font-weight: 500; color: var(--text-muted);
+  cursor: pointer; transition: all 0.2s;
+}
+.settings-nav-item:hover { background: var(--navy-lighter); color: var(--text-primary); }
+.settings-nav-item.active { background: var(--purple-subtle); color: var(--purple-light); box-shadow: inset 3px 0 0 var(--purple); }
+.settings-panel { flex: 1; min-width: 0; }
+.agent-config-card {
+  position: relative; background: var(--glass-bg); backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+  padding: var(--sp-6); margin-bottom: var(--sp-5); transition: all 0.3s var(--ease-out);
+}
+.agent-config-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent);
+}
+.agent-config-card:hover { border-color: rgba(148,163,184,0.12); }
+.agent-config-header { display: flex; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-5); }
+.agent-config-header .agent-role { font-size: 1.05rem; font-weight: 700; }
+.agent-config-header .agent-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+.agent-config-fields { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-5); }
+.latency-indicator { display: flex; align-items: center; gap: var(--sp-2); font-size: 0.8rem; margin-top: var(--sp-2); }
+.latency-dot { width: 8px; height: 8px; border-radius: 50%; }
+.latency-dot.fast { background: var(--green); }
+.latency-dot.medium { background: var(--yellow); }
+.latency-dot.slow { background: var(--red); }
+.latency-value { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-secondary); }
+.loop-config-section {
+  background: var(--glass-bg); backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+  padding: var(--sp-6); margin-top: var(--sp-6);
+}
+.loop-config-section h3 { margin-bottom: var(--sp-6); }
+.config-row { display: flex; align-items: center; gap: var(--sp-6); margin-bottom: var(--sp-5); }
+.config-row .config-label-group { min-width: 180px; }
+.config-row .config-label { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); }
+.config-row .config-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.config-row .config-control { flex: 1; display: flex; align-items: center; gap: var(--sp-3); }
+.slider-value {
+  min-width: 36px; text-align: center; padding: var(--sp-1) var(--sp-2);
+  background: var(--purple-subtle); color: var(--purple-light); border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; font-weight: 600;
+}
+@media (max-width: 900px) {
+  .config-layout { flex-direction: column; }
+  .settings-sidebar { width: 100%; position: static; }
+  .agent-config-fields { grid-template-columns: 1fr; }
+}
